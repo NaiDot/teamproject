@@ -38,6 +38,7 @@ const dateInput = document.getElementById("date");
 function setTheme(theme) {
   const isDark = theme === "dark";
   document.body.dataset.theme = isDark ? "dark" : "light";
+  document.documentElement.dataset.bsTheme = isDark ? "dark" : "light"; // โหมดมืดของ Bootstrap ทั้งหน้า
   themeToggle.setAttribute("aria-checked", String(isDark));
   themeToggle.title = isDark ? "เปิดโหมดสว่าง" : "เปิดโหมดมืด";
 }
@@ -65,7 +66,48 @@ function updateOtherTypeField() {
 }
 
 typeSelect.addEventListener("change", updateOtherTypeField);
-itemForm.addEventListener("reset", () => setTimeout(updateOtherTypeField));
+itemForm.addEventListener("reset", () => setTimeout(() => {
+  updateOtherTypeField();
+  itemForm.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
+}));
+
+// ---------- ตรวจฟอร์ม Item แบบกรอบสีแดง (แทน popup ของเบราว์เซอร์) ----------
+const evidenceInput = document.getElementById("evidence");
+
+function getEvidenceLinks() {
+  return evidenceInput.value
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => line !== "");
+}
+
+// ตั้งเงื่อนไขพิเศษ: ห้ามมีแต่ช่องว่าง และ Evidence ต้องเป็นลิงก์ http(s)
+function setCustomRules() {
+  itemForm.querySelectorAll("input, textarea").forEach(el => el.setCustomValidity(""));
+  itemForm.querySelectorAll("input[required], textarea[required]").forEach(el => {
+    el.setCustomValidity(el.value.trim() === "" ? "empty" : "");
+  });
+  const links = getEvidenceLinks();
+  const linksOk = links.length > 0 && links.every(url => /^https?:\/\/.+/i.test(url));
+  evidenceInput.setCustomValidity(linksOk ? "" : "invalid");
+}
+
+function markInvalidFields() {
+  setCustomRules();
+  itemForm.querySelectorAll("input, select, textarea").forEach(el => {
+    el.classList.toggle("is-invalid", !el.checkValidity());
+  });
+}
+
+// แก้ช่องที่เป็นสีแดงแล้ว ให้กรอบแดงหายทันที
+["input", "change"].forEach(type => {
+  itemForm.addEventListener(type, event => {
+    const el = event.target;
+    if (!el.classList.contains("is-invalid")) return;
+    setCustomRules();
+    el.classList.toggle("is-invalid", !el.checkValidity());
+  });
+});
 
 
 function saveData() {
@@ -366,30 +408,15 @@ itemForm.addEventListener("submit", event => {
   }
 
 
-  if (!itemForm.checkValidity()) {
-    itemForm.reportValidity();
+  // ช่องไหนผิด -> กรอบสีแดง + ข้อความใต้ช่อง แล้วเลื่อนไปช่องแรกที่ผิด
+  markInvalidFields();
+  const firstInvalid = itemForm.querySelector(".is-invalid");
+  if (firstInvalid) {
+    firstInvalid.focus();
     return;
   }
 
-  if (dateInput.value > getTodayDate()) {
-    alert("เลือกวันที่ไม่ถูกต้อง: วันที่ทำงานต้องไม่เป็นวันในอนาคต");
-    dateInput.focus();
-    return;
-  }
-
-  // แยก Evidence ทีละบรรทัด
-
-  const evidence = document.getElementById("evidence").value
-    .split("\n")
-    .map(line => line.trim())
-    .filter(line => line !== "");
-
-  const allLinksOk = evidence.every(url => /^https?:\/\/.+/i.test(url));
-
-  if (evidence.length === 0 || !allLinksOk) {
-    alert("Evidence ต้องมีอย่างน้อย 1 ลิงก์ และขึ้นต้นด้วย http:// หรือ https://");
-    return;
-  }
+  const evidence = getEvidenceLinks();
 
 
   const skills = document.getElementById("skills").value
