@@ -1,6 +1,7 @@
-
 let portfolios = [];   // เก็บ Portfolio ทั้งหมด
 let selectedId = null; // id ของ Portfolio ที่กำลังเลือกอยู่
+
+const exampleFiles = ["portfolio-example-1.json", "portfolio-example-2.json"];
 
 const listEls = [
   document.getElementById("portfolioList"),
@@ -37,6 +38,7 @@ const dateInput = document.getElementById("date");
 function setTheme(theme) {
   const isDark = theme === "dark";
   document.body.dataset.theme = isDark ? "dark" : "light";
+  document.documentElement.dataset.bsTheme = isDark ? "dark" : "light"; // โหมดมืดของ Bootstrap ทั้งหน้า
   themeToggle.setAttribute("aria-checked", String(isDark));
   themeToggle.title = isDark ? "เปิดโหมดสว่าง" : "เปิดโหมดมืด";
 }
@@ -64,7 +66,48 @@ function updateOtherTypeField() {
 }
 
 typeSelect.addEventListener("change", updateOtherTypeField);
-itemForm.addEventListener("reset", () => setTimeout(updateOtherTypeField));
+itemForm.addEventListener("reset", () => setTimeout(() => {
+  updateOtherTypeField();
+  itemForm.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
+}));
+
+// ---------- ตรวจฟอร์ม Item แบบกรอบสีแดง (แทน popup ของเบราว์เซอร์) ----------
+const evidenceInput = document.getElementById("evidence");
+
+function getEvidenceLinks() {
+  return evidenceInput.value
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => line !== "");
+}
+
+// ตั้งเงื่อนไขพิเศษ: ห้ามมีแต่ช่องว่าง และ Evidence ต้องเป็นลิงก์ http(s)
+function setCustomRules() {
+  itemForm.querySelectorAll("input, textarea").forEach(el => el.setCustomValidity(""));
+  itemForm.querySelectorAll("input[required], textarea[required]").forEach(el => {
+    el.setCustomValidity(el.value.trim() === "" ? "empty" : "");
+  });
+  const links = getEvidenceLinks();
+  const linksOk = links.length > 0 && links.every(url => /^https?:\/\/.+/i.test(url));
+  evidenceInput.setCustomValidity(linksOk ? "" : "invalid");
+}
+
+function markInvalidFields() {
+  setCustomRules();
+  itemForm.querySelectorAll("input, select, textarea").forEach(el => {
+    el.classList.toggle("is-invalid", !el.checkValidity());
+  });
+}
+
+// แก้ช่องที่เป็นสีแดงแล้ว ให้กรอบแดงหายทันที
+["input", "change"].forEach(type => {
+  itemForm.addEventListener(type, event => {
+    const el = event.target;
+    if (!el.classList.contains("is-invalid")) return;
+    setCustomRules();
+    el.classList.toggle("is-invalid", !el.checkValidity());
+  });
+});
 
 
 function saveData() {
@@ -72,24 +115,66 @@ function saveData() {
   localStorage.setItem("selectedId", JSON.stringify(selectedId));
 }
 
-function loadData() {
+// แปลงโครงสร้างไฟล์ JSON ตัวอย่าง ให้เป็นรูปแบบที่เว็บใช้
+function convertExample(example) {
+  return {
+    id: String(example.portfolioId),
+    name: example.name,
+    enjoy: example.whatIEnjoy,
+    tried: example.whatIveTried,
+    curious: example.whatImCuriousAbout,
+    items: (example.items || []).map(item => ({
+      ...item,
+      whatIDid: item.reflection?.whatIDid || "",
+      whatILearned: item.reflection?.whatILearned || "",
+      challenge: item.reflection?.challenge || "",
+      nextStep: item.reflection?.nextStep || ""
+    }))
+  };
+}
+
+async function loadExamples() {
+  const results = await Promise.all(exampleFiles.map(async file => {
+    try {
+      const response = await fetch(file);
+      if (!response.ok) throw new Error(`โหลด ${file} ไม่สำเร็จ`);
+      return convertExample(await response.json());
+    } catch (error) {
+      console.error(error);
+      return null; // ไฟล์ไหนพัง ข้ามไป ไม่ล้มทั้งหมด
+    }
+  }));
+  return results.filter(Boolean);
+}
+
+async function loadData() {
+  // 1) โหลดข้อมูลที่บันทึกไว้ใน localStorage
   try {
     portfolios = JSON.parse(localStorage.getItem("portfolios")) || [];
     selectedId = JSON.parse(localStorage.getItem("selectedId"));
   } catch (error) {
-    // ถ้าข้อมูลเสีย ให้เริ่มใหม่
+    console.error("อ่านข้อมูลใน localStorage ไม่ได้:", error);
     portfolios = [];
     selectedId = null;
   }
 
-  
-  const found = portfolios.find(p => p.id === selectedId);
-  if (!found) {
+  // ทำให้ id เป็น string ทั้งหมด (ข้อมูลเก่าที่ใช้ Date.now() เป็นตัวเลข)
+  portfolios.forEach(p => { p.id = String(p.id); });
+  if (selectedId !== null) selectedId = String(selectedId);
+
+  // 2) โหลดตัวอย่างจากไฟล์ แล้วเติมเฉพาะอันที่ยังไม่มี
+  const examples = await loadExamples();
+  const existingIds = new Set(portfolios.map(p => p.id));
+  const missing = examples.filter(e => !existingIds.has(e.id));
+  portfolios = [...missing, ...portfolios]; // ตัวอย่างอยู่บนสุด
+
+  // 3) ตรวจว่า selectedId ยังมีอยู่
+  if (!portfolios.some(p => p.id === selectedId)) {
     selectedId = portfolios.length > 0 ? portfolios[0].id : null;
   }
+
+  saveData();
 }
-
-
 
 
 function escapeHtml(text) {
@@ -104,8 +189,6 @@ function escapeHtml(text) {
 function getSelectedPortfolio() {
   return portfolios.find(p => p.id === selectedId);
 }
-
-
 
 
 function renderList() {
@@ -125,7 +208,7 @@ function renderList() {
       <li>
         <button type="button"
                 class="portfolio-item ${p.id === selectedId ? "active" : ""}"
-                data-id="${p.id}">
+                data-id="${escapeHtml(p.id)}">
           <span class="name">${escapeHtml(p.name)}</span>
           <span class="count">${p.items.length} รายการ</span>
         </button>
@@ -144,7 +227,7 @@ function renderDetail() {
 
   const portfolio = getSelectedPortfolio();
 
-  
+
   if (!portfolio) {
     emptyState.hidden = false;
     detailContent.hidden = true;
@@ -175,11 +258,11 @@ function renderItems(portfolio) {
 
   itemsContainer.innerHTML = portfolio.items
     .map((item, index) => {
-      const skillsHtml = item.skills
+      const skillsHtml = (item.skills || [])
         .map(skill => `<span>${escapeHtml(skill)}</span>`)
         .join("");
 
-      const evidenceHtml = item.evidence
+      const evidenceHtml = (item.evidence || [])
         .map(url => `
           <li>
             <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">
@@ -261,12 +344,11 @@ pageTabs.forEach(tab => {
 });
 
 
-
 function handlePortfolioSelection(event) {
   const button = event.target.closest(".portfolio-item");
   if (!button) return;
 
-  selectedId = Number(button.dataset.id);
+  selectedId = button.dataset.id;
   saveData();
   renderAll();
   showPage("portfolioPage");
@@ -284,7 +366,7 @@ portfolioForm.addEventListener("submit", event => {
   if (portfolioForm.querySelector(".invalid")) return; // มีช่องว่าง -> หยุด
 
   const newPortfolio = {
-    id: Date.now(), 
+    id: String(Date.now()),
     name: document.getElementById("displayName").value.trim(),
     enjoy: document.getElementById("enjoy").value.trim(),
     tried: document.getElementById("tried").value.trim(),
@@ -325,33 +407,18 @@ itemForm.addEventListener("submit", event => {
     return;
   }
 
- 
-  if (!itemForm.checkValidity()) {
-    itemForm.reportValidity();
+
+  // ช่องไหนผิด -> กรอบสีแดง + ข้อความใต้ช่อง แล้วเลื่อนไปช่องแรกที่ผิด
+  markInvalidFields();
+  const firstInvalid = itemForm.querySelector(".is-invalid");
+  if (firstInvalid) {
+    firstInvalid.focus();
     return;
   }
 
-  if (dateInput.value > getTodayDate()) {
-    alert("เลือกวันที่ไม่ถูกต้อง: วันที่ทำงานต้องไม่เป็นวันในอนาคต");
-    dateInput.focus();
-    return;
-  }
+  const evidence = getEvidenceLinks();
 
-  // แยก Evidence ทีละบรรทัด
 
-  const evidence = document.getElementById("evidence").value
-    .split("\n")
-    .map(line => line.trim())
-    .filter(line => line !== "");
-
-  const allLinksOk = evidence.every(url => /^https?:\/\/.+/i.test(url));
-
-  if (evidence.length === 0 || !allLinksOk) {
-    alert("Evidence ต้องมีอย่างน้อย 1 ลิงก์ และขึ้นต้นด้วย http:// หรือ https://");
-    return;
-  }
-
-  
   const skills = document.getElementById("skills").value
     .split(",")
     .map(s => s.trim())
@@ -373,7 +440,7 @@ itemForm.addEventListener("submit", event => {
   };
 
   portfolio.items.push(newItem);
-  
+
   saveData();
   itemForm.reset();
   renderAll();
@@ -396,7 +463,4 @@ itemsContainer.addEventListener("click", event => {
 
 });
 
-
-loadData();
-renderAll();
- 
+loadData().then(renderAll);
