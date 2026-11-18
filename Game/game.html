@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>แบล็กแจ็ก: ภารกิจดาวไกล</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&family=Prompt:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="game.css">
+</head>
+<body>
+<button id="snd" aria-label="เปิดหรือปิดเสียง">🔊 เสียง: เปิด</button>
+
+<section class="screen on" id="start">
+  <h1>BLACKJACK 21</h1>
+  <h2>ภารกิจดาวไกล</h2>
+  <p>ท้าดวลกับบอทดีลเลอร์ประจำสถานีอวกาศ<br>ทำแต้มให้ใกล้ 21 ที่สุดโดยไม่เกิน ชนะเพื่อรับเกียรติบัตรนักบินอวกาศ</p>
+  <div class="panel" style="max-width:480px;text-align:left">
+    <p>• จั่วไพ่เพื่อเพิ่มแต้ม หรือหยุดเมื่อพอใจ<br>• J, Q, K มีค่า 10 แต้ม และ A มีค่า 1 หรือ 11<br>• บอทจะจั่วไพ่ต่อจนกว่าจะได้อย่างน้อย 17 แต้ม<br>• แต้มเกิน 21 ถือว่าแพ้ทันที</p>
+  </div>
+  <div class="row"><button class="btn" id="startBtn">เริ่มภารกิจ</button><a class="btn alt" href="../index.html" id="toPortfolioStart">กลับไปหน้า Portfolio</a></div>
+</section>
+
+<section class="screen" id="game">
+  <h2>BLACKJACK</h2><div class="card back" id="deck" aria-hidden="true">?</div>
+  <div class="panel zone"><h3>บอทดีลเลอร์ <span class="score" id="ds">0</span></h3><div class="hand" id="dh"></div></div>
+  <div id="status"></div>
+  <div class="panel zone"><h3>ผู้เล่น <span class="score" id="ps">0</span></h3><div class="hand" id="ph"></div></div>
+  <div class="row"><button class="btn go" id="hit">จั่วไพ่</button><button class="btn alt" id="stand">หยุด</button></div>
+</section>
+
+<section class="screen lose" id="lose">
+  <h2>ภารกิจล้มเหลว</h2>
+  <p id="loseMsg"></p>
+  <div class="row"><button class="btn go" id="again1">เล่นอีกรอบ</button><button class="btn alt" id="quit">ออก</button><a class="btn alt" href="../index.html" id="toPortfolioLose">กลับไปหน้า Portfolio</a></div>
+</section>
+
+<section class="screen" id="draw">
+  <h2>เสมอกัน</h2>
+  <p>แต้มเท่ากับบอท ยังไม่มีผู้ชนะ ลองอีกครั้ง</p>
+  <div class="row"><button class="btn go" id="again2">เล่นรอบใหม่</button><a class="btn alt" href="../index.html" id="toPortfolioDraw">กลับไปหน้า Portfolio</a></div>
+</section>
+
+<section class="screen" id="bye">
+  <h2>ขอบคุณที่ร่วมภารกิจ</h2>
+  <p>แล้วพบกันใหม่ นักบินอวกาศ</p>
+  <button class="btn" id="home">กลับหน้าแรก</button>
+</section>
+
+<section class="screen win" id="win">
+  <h2>ภารกิจสำเร็จ! คุณชนะ</h2>
+  <p id="winMsg"></p>
+  <p>กรอกชื่อและนามสกุลเพื่อรับเกียรติบัตร</p>
+  <div class="fields">
+    <div><label for="fn">ชื่อ</label><input id="fn" maxlength="40" autocomplete="given-name"></div>
+    <div><label for="ln">นามสกุล</label><input id="ln" maxlength="40" autocomplete="family-name"></div>
+    <div id="err" role="alert"></div>
+    <button class="btn" id="mk">รับเกียรติบัตร</button>
+  </div>
+</section>
+
+<section class="screen" id="cert">
+  <!-- กล่องพรีวิว HTML (ถูกซ่อนเมื่อมีรูปพรีวิวจาก canvas แล้ว) -->
+  <div class="cert" id="certBox">
+    <div><p>สถานีอวกาศแบล็กแจ็ก</p><h2>เกียรติบัตร</h2></div>
+    <div><p>ขอมอบให้</p><div class="nm" id="cn"></div></div>
+    <p>เพื่อแสดงว่าเป็นผู้ชนะบอทดีลเลอร์ในเกมแบล็กแจ็ก<br>และได้รับยศนักบินอวกาศผู้เชี่ยวชาญแต้ม 21</p>
+    <div class="foot"><p id="cd"></p></div>
+  </div>
+  <p class="hint noprint" id="dlMsg">กดปุ่มดาวน์โหลดเพื่อบันทึกเกียรติบัตรเป็นไฟล์ .json</p>
+  <div class="row noprint"><button class="btn" id="dl">ดาวน์โหลดเป็นไฟล์ .json</button><button class="btn go" id="pr">บันทึกเป็น PDF / พิมพ์</button><button class="btn alt" id="again3">เล่นอีกรอบ</button><a class="btn alt" href="../index.html" id="toPortfolioCert">กลับไปหน้า Portfolio</a></div>
+</section>
+
+<script src="game.js"></script>
+</body>
+</html>
