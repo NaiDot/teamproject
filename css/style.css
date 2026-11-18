@@ -1,4 +1,6 @@
+
 /* ปรับสีและฟอนต์ของ Bootstrap (โหมดสว่าง) */
+
 :root {
   --bs-body-font-family: "Noto Sans Thai", "Segoe UI", system-ui, sans-serif;
   --bs-body-color: #2a4d88;
