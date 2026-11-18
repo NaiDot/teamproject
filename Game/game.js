@@ -67,127 +67,70 @@ function stand(){if(over)return;setBtn(false);over=true;hide=false;shownD=D.leng
   else finish('draw','เสมอกัน '+p+' แต้ม');
  })()}
 
-/* ===== เกียรติบัตร ===== */
-let curName='';
+/* ===== จัดการข้อมูล JSON ===== */
+let currentUser='', currentDateStr='';
 
-// ค่าข้อความและสีของเกียรติบัตร ใช้ร่วมกันทั้งตอนวาดพรีวิวและตอนสร้างไฟล์ JSON
-const CERT={
- issuer:'สถานีอวกาศแบล็กแจ็ก',
- title:'เกียรติบัตร',
- presentedTo:'ขอมอบให้',
- description:[
-  'เพื่อแสดงว่าเป็นผู้ชนะบอทดีลเลอร์ในเกมแบล็กแจ็ก',
-  'และได้รับยศนักบินอวกาศผู้เชี่ยวชาญแต้ม 21'
- ],
- canvas:{width:1400,height:990},
- theme:{
-  background:'#f8fbff',
-  outerBorder:'#0b6a8a',
-  innerBorder:'#ff3df2',
-  titleColor:'#0b6a8a',
-  textColor:'#2b3a66',
-  nameColor:'#0a1030',
-  font:'Prompt, sans-serif'
- }
+$('mk').onclick=()=>{
+ const nameVal=$('fullName').value.trim();
+ if(!nameVal){$('err').textContent='กรุณากรอกชื่อ-นามสกุล';return}
+ $('err').textContent='';
+ currentUser=nameVal;
+ 
+ // กำหนดวันที่ทำกิจกรรม (รูปแบบ YYYY-MM-DD)
+ const now=new Date();
+ currentDateStr=now.toISOString().split('T')[0];
+
+ show('result');
 };
 
-window.addEventListener('DOMContentLoaded',()=>{
- const certName=new URLSearchParams(window.location.search).get('cert');
- if(certName)showCertOnly(certName);
-});
-
-function showCertOnly(name){
- curName=name;
- $('cn').textContent=name;
- show('cert');
- $('dlMsg').textContent='กดปุ่มดาวน์โหลดเพื่อบันทึกเกียรติบัตรเป็นไฟล์ .json';
-}
-
-// วาดรูปเกียรติบัตรลง canvas เพื่อใช้เป็นพรีวิวและสำหรับพิมพ์
-function drawCertCanvas(name,dateStr){
- const T=CERT.theme,W=CERT.canvas.width,H=CERT.canvas.height;
- const FF='Prompt,"Noto Sans Thai",Tahoma,sans-serif';
- const c=document.createElement('canvas');c.width=W;c.height=H;
- const x=c.getContext('2d');
-
- // วางข้อความกึ่งกลางด้วยการวัดความกว้างเอง (ไม่พึ่ง textAlign:'center'
- // เพราะบางเบราว์เซอร์ เช่น Safari/WebView บนมือถือ จัดกึ่งกลางข้อความไทยผิด)
- // ถ้าข้อความกว้างเกิน maxW จะลดขนาดฟอนต์ลงให้พอดี
- const centerText=(text,y,weight,size,color,maxW)=>{
-  let fs=size;
-  x.font=weight+' '+fs+'px '+FF;
-  while(maxW&&x.measureText(text).width>maxW&&fs>12){fs-=2;x.font=weight+' '+fs+'px '+FF}
-  x.fillStyle=color;x.textAlign='left';x.textBaseline='alphabetic';
-  const w=x.measureText(text).width;
-  x.fillText(text,W/2-w/2,y);
-  return w;
- };
-
- x.fillStyle=T.background;x.fillRect(0,0,W,H);
- x.strokeStyle=T.outerBorder;x.lineWidth=14;x.strokeRect(20,20,W-40,H-40);
- x.strokeStyle=T.innerBorder;x.lineWidth=3;x.strokeRect(50,50,W-100,H-100);
-
- // โลโก้ตราสัญลักษณ์
- x.fillStyle=T.outerBorder;
- x.beginPath();x.arc(W/2,110,32,0,Math.PI*2);x.fill();
- x.strokeStyle=T.innerBorder;x.lineWidth=4;x.stroke();
- x.font='32px sans-serif';x.textAlign='left';x.textBaseline='middle';x.fillStyle='#fff';
- x.fillText('\u2605',W/2-x.measureText('\u2605').width/2,111);
-
- const maxW=W-200;
- centerText(CERT.issuer,175,400,28,T.textColor,maxW);
- centerText(CERT.title,275,600,88,T.titleColor,maxW);
- centerText(CERT.presentedTo,370,400,36,T.textColor,maxW);
-
- const nameW=centerText(name,485,600,88,T.nameColor,W-300);
- const nw=Math.min(nameW+80,W-200);
- x.fillStyle=T.titleColor;x.fillRect(W/2-nw/2,510,nw,4);
-
- centerText(CERT.description[0],610,400,34,T.textColor,maxW);
- centerText(CERT.description[1],665,400,34,T.textColor,maxW);
-
- x.textAlign='left';x.textBaseline='alphabetic';x.fillStyle=T.textColor;
- x.font='400 32px '+FF;
- x.fillText(dateStr,120,H-110);
-
- return c;
-}
-
-async function cert(name){
- curName=name;
- $('cn').textContent=name;
- const dateStr='วันที่ '+new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
- $('cd').textContent=dateStr;
- show('cert');
-
+$('dl').onclick=()=>{
+ const m=$('dlMsg');
  try{
-  try{
-   // โหลดฟอนต์ให้ครบทั้งน้ำหนัก 400/600 และทั้งตัวอักษรไทย/ละติน ก่อนวาดลง canvas
-   await Promise.all([
-    document.fonts.load('400 28px Prompt','กขA'),
-    document.fonts.load('600 88px Prompt','กขA')
-   ]);
-   await document.fonts.ready;
-  }catch(e){}
-  const imageUrl=drawCertCanvas(name,dateStr).toDataURL('image/png');
+  if(!currentUser)throw new Error('no name');
+  
+  // สร้างข้อมูลตามโครงสร้าง portfolio-example-2.json โดยล็อคค่าตามที่กำหนด
+  const portfolioData={
+   portfolioId:'portfolio-2',
+   name:currentUser,
+   whatIEnjoy:'Coding',
+   whatIveTried:'Automation',
+   whatImCuriousAbout:'Sheet appscript',
+   items:[
+    {
+     id:'item-001',
+     title:'blackjack',
+     type:'Challenge',
+     date:currentDateStr,
+     role:'User',
+     description:'Play Blackjack activity',
+     skills:[
+      'Thinking and planning'
+     ],
+     reflection:{
+      whatIDid:'play blackjack',
+      whatILearned:'Thinking and planning',
+      challenge:'Win the game',
+      nextStep:'Win as much as possible.'
+     },
+     evidence:[
+      'https://anuntacahi-fangtun.github.io/Blackjack/'
+     ]
+    }
+   ]
+  };
 
-  let im=$('certImg');
-  if(!im){
-   im=document.createElement('img');im.id='certImg';im.alt='เกียรติบัตร';
-   im.style.cssText='width:100%;max-width:760px;border-radius:8px;margin-top:10px;box-shadow:0 0 30px #27f0ff44';
-   $('dlMsg').after(im);
-  }
-  im.src=imageUrl;
-
-  // ซ่อนกล่องพรีวิว HTML เพื่อไม่ให้แสดงซ้ำซ้อนกับรูปพรีวิว
-  const certBoxEl=$('certBox');
-  if(certBoxEl)certBoxEl.style.display='none';
-
-  $('dlMsg').textContent='สร้างเกียรติบัตรสำเร็จ! กดปุ่มดาวน์โหลดเพื่อบันทึกเป็นไฟล์ .json';
+  const blob=new Blob([JSON.stringify(portfolioData,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='portfolio-blackjack-'+currentUser.replace(/[\\/:*?"<>|\s]+/g,'_')+'.json';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  m.textContent='ดาวน์โหลดไฟล์ Portfolio JSON สำเร็จเรียบร้อย!';
  }catch(e){
-  console.error(e);
+  m.textContent='ไม่สามารถสร้างไฟล์ได้ กรุณาลองใหม่อีกครั้ง';
  }
-}
+};
 
 /* ===== เสียง (Web Audio) ===== */
 let ac,master,mus,fx,muted=false,nextT=0,bar=0,timer=null;
@@ -243,48 +186,10 @@ $('snd').onclick=()=>{
  $('snd').textContent=muted?'🔇 เสียง: ปิด':'🔊 เสียง: เปิด';
 };
 
-/* ===== ปุ่มต่างๆ ===== */
+/* ===== ปุ่มและการควบคุมอื่นๆ ===== */
 $('startBtn').onclick=deal;
 $('hit').onclick=hit;
 $('stand').onclick=stand;
 $('again1').onclick=$('again2').onclick=$('again3').onclick=deal;
 $('quit').onclick=()=>show('bye');
 $('home').onclick=()=>{history.replaceState(null,'',location.pathname+location.search);show('start')};
-$('pr').onclick=()=>{try{window.print()}catch(e){}};
-
-// ดาวน์โหลดเกียรติบัตรเป็นไฟล์ .json (เก็บเป็นข้อมูลโค้ด ให้เว็บอื่นนำไปประมวลผลเป็นรูป)
-$('dl').onclick=()=>{
- const m=$('dlMsg');
- try{
-  if(!curName)throw new Error('no name');
-  const data={
-   type:'blackjack-certificate',
-   version:1,
-   recipient:curName,
-   issuedAt:new Date().toISOString(),
-   issuedAtText:$('cd').textContent,
-   issuer:CERT.issuer,
-   title:CERT.title,
-   presentedTo:CERT.presentedTo,
-   description:CERT.description,
-   canvas:CERT.canvas,
-   theme:CERT.theme
-  };
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download='Blackjack-Certificate-'+curName.replace(/[\\/:*?"<>|\s]+/g,'_')+'.json';
-  document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
-  m.textContent='ดาวน์โหลดไฟล์เกียรติบัตร (.json) สำเร็จ!';
- }catch(e){
-  m.textContent='ไม่สามารถสร้างไฟล์ได้ กรุณาลองใหม่อีกครั้ง';
- }
-};
-
-$('mk').onclick=()=>{
- const f=$('fn').value.trim(),l=$('ln').value.trim();
- if(!f||!l){$('err').textContent='กรุณากรอกทั้งชื่อและนามสกุล';return}
- $('err').textContent='';cert(f+' '+l);
-};

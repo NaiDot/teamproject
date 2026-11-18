@@ -13,7 +13,7 @@
 <section class="screen on" id="start">
   <h1>BLACKJACK 21</h1>
   <h2>ภารกิจดาวไกล</h2>
-  <p>ท้าดวลกับบอทดีลเลอร์ประจำสถานีอวกาศ<br>ทำแต้มให้ใกล้ 21 ที่สุดโดยไม่เกิน ชนะเพื่อรับเกียรติบัตรนักบินอวกาศ</p>
+  <p>ท้าดวลกับบอทดีลเลอร์ประจำสถานีอวกาศ<br>ทำแต้มให้ใกล้ 21 ที่สุดโดยไม่เกิน ชนะเพื่อรับไฟล์ข้อมูลสรุปผลงาน (JSON)</p>
   <div class="panel" style="max-width:480px;text-align:left">
     <p>• จั่วไพ่เพื่อเพิ่มแต้ม หรือหยุดเมื่อพอใจ<br>• J, Q, K มีค่า 10 แต้ม และ A มีค่า 1 หรือ 11<br>• บอทจะจั่วไพ่ต่อจนกว่าจะได้อย่างน้อย 17 แต้ม<br>• แต้มเกิน 21 ถือว่าแพ้ทันที</p>
   </div>
@@ -49,25 +49,22 @@
 <section class="screen win" id="win">
   <h2>ภารกิจสำเร็จ! คุณชนะ</h2>
   <p id="winMsg"></p>
-  <p>กรอกชื่อและนามสกุลเพื่อรับเกียรติบัตร</p>
+  <p>กรอกชื่อ-นามสกุลของคุณเพื่อบันทึกข้อมูลลงในไฟล์ Portfolio JSON</p>
   <div class="fields">
-    <div><label for="fn">ชื่อ</label><input id="fn" maxlength="40" autocomplete="given-name"></div>
-    <div><label for="ln">นามสกุล</label><input id="ln" maxlength="40" autocomplete="family-name"></div>
+    <div><label for="fullName">ชื่อ-นามสกุล</label><input id="fullName" maxlength="80" autocomplete="name" placeholder="เช่น สมชาย มีสุข"></div>
     <div id="err" role="alert"></div>
-    <button class="btn" id="mk">รับเกียรติบัตร</button>
+    <button class="btn" id="mk">สร้างและดาวน์โหลดไฟล์ .json</button>
   </div>
 </section>
 
-<section class="screen" id="cert">
-  <!-- กล่องพรีวิว HTML (ถูกซ่อนเมื่อมีรูปพรีวิวจาก canvas แล้ว) -->
-  <div class="cert" id="certBox">
-    <div><p>สถานีอวกาศแบล็กแจ็ก</p><h2>เกียรติบัตร</h2></div>
-    <div><p>ขอมอบให้</p><div class="nm" id="cn"></div></div>
-    <p>เพื่อแสดงว่าเป็นผู้ชนะบอทดีลเลอร์ในเกมแบล็กแจ็ก<br>และได้รับยศนักบินอวกาศผู้เชี่ยวชาญแต้ม 21</p>
-    <div class="foot"><p id="cd"></p></div>
+<section class="screen" id="result">
+  <h2>บันทึกข้อมูลสำเร็จ</h2>
+  <p id="dlMsg">ไฟล์ Portfolio JSON ของคุณพร้อมดาวน์โหลดแล้ว</p>
+  <div class="row">
+    <button class="btn go" id="dl">ดาวน์โหลดไฟล์ .json</button>
+    <button class="btn alt" id="again3">เล่นอีกรอบ</button>
+    <a class="btn alt" href="../index.html" id="toPortfolioCert">กลับไปหน้า Portfolio</a>
   </div>
-  <p class="hint noprint" id="dlMsg">กดปุ่มดาวน์โหลดเพื่อบันทึกเกียรติบัตรเป็นไฟล์ .json</p>
-  <div class="row noprint"><button class="btn" id="dl">ดาวน์โหลดเป็นไฟล์ .json</button><button class="btn go" id="pr">บันทึกเป็น PDF / พิมพ์</button><button class="btn alt" id="again3">เล่นอีกรอบ</button><a class="btn alt" href="../index.html" id="toPortfolioCert">กลับไปหน้า Portfolio</a></div>
 </section>
 
 <script src="game.js"></script>
