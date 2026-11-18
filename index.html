@@ -14,15 +14,15 @@
 
 <body>
     <header class="d-flex flex-wrap align-items-center justify-content-between gap-3 px-4 py-3 bg-white border-bottom">
-        <button type="button" class="theme-toggle d-flex align-items-center" id="themeToggle" role="switch" aria-checked="false" aria-label="โหมดมืด" title="เปิดโหมดมืด">
-            <span class="theme-toggle-thumb" aria-hidden="true"></span>
-        </button>
-        <h1 class="h3 fw-bold mb-0 text-dark">PORTFOLIO</h1>
-        <nav class="d-flex gap-2" aria-label="หน้าหลัก">
-            <button type="button" class="btn btn-outline-primary fw-bold page-tab active" data-page="createPage" aria-pressed="true">สร้าง Portfolio</button>
-            <button type="button" class="btn btn-outline-primary fw-bold page-tab" data-page="portfolioPage" aria-pressed="false">PORTFOLIO</button>
-        </nav>
-    </header>
+    <button type="button" class="theme-toggle d-flex align-items-center" id="themeToggle" role="switch" aria-checked="false" aria-label="โหมดมืด" title="เปิดโหมดมืด">
+        <span class="theme-toggle-thumb" aria-hidden="true"></span>
+    </button>
+    <h1 class="h3 fw-bold mb-0 text-dark">PORTFOLIO</h1>
+    <nav class="d-flex gap-2" aria-label="หน้าหลัก">
+        <button type="button" class="btn btn-outline-primary fw-bold page-tab active" data-page="createPage" aria-pressed="true">สร้าง Portfolio</button>
+        <button type="button" class="btn btn-outline-primary fw-bold page-tab" data-page="portfolioPage" aria-pressed="false">PORTFOLIO</button>
+    </nav>
+</header>
 
     <div class="container-fluid p-3 p-md-4">
         <div class="row g-4 align-items-start">
@@ -38,6 +38,8 @@
                         รายการ
                     </p>
                     <ul class="portfolio-list list-unstyled mb-4" id="createPortfolioList" aria-label="รายการ Portfolio ที่บันทึกแล้ว"></ul>
+                            <button type="button" class="btn btn-primary w-100 py-2 mb-4" id="importBtn"
+                            data-bs-toggle="modal" data-bs-target="#importModal">Import Portfolio</button>
 
                     <form id="portfolioForm" novalidate>
                         <div class="field mb-3">
