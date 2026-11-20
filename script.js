@@ -23,6 +23,7 @@ const itemCount = document.getElementById("itemCount");
 const deleteBtn = document.getElementById("deleteBtn");
 const pageTabs = document.querySelectorAll(".page-tab");
 const themeToggle = document.getElementById("themeToggle");
+const homePage = document.getElementById("homePage");
 const createPage = document.getElementById("createPage");
 const createContent = document.querySelector(".create-content");
 const portfolioPage = document.getElementById("portfolioPage");
@@ -373,20 +374,47 @@ function editItem(index) {
   showPage("createPage");
 }
 
+// จัดการการเปลี่ยนหน้าเว็บไซต์
 function showPage(pageId) {
-  const isCreatePage = pageId === "createPage";
-  createPage.hidden = !isCreatePage;
-  createContent.hidden = !isCreatePage;
-  portfolioPage.hidden = isCreatePage;
-  portfolioContent.hidden = isCreatePage;
 
-  pageTabs.forEach(tab => {
-    const isActive = tab.dataset.page === pageId;
-    tab.classList.toggle("active", isActive);
-    tab.setAttribute("aria-pressed", String(isActive));
-  });
+    // ซ่อนทุกหน้าก่อน
+    homePage.hidden = true;
+    createPage.hidden = true;
+    createContent.hidden = true;
+    portfolioPage.hidden = true;
+    portfolioContent.hidden = true;
+
+    // แสดงหน้าที่เลือก
+    if (pageId === "homePage") {
+        homePage.hidden = false;
+    } 
+    else if (pageId === "createPage") {
+        createPage.hidden = false;
+        createContent.hidden = false;
+    } 
+    else if (pageId === "portfolioPage") {
+        portfolioPage.hidden = false;
+        portfolioContent.hidden = false;
+    }
+
+    // ซ่อนปุ่ม Hamburger เฉพาะหน้า Home
+    const topNav = document.getElementById("topNav");
+    topNav.hidden = pageId === "homePage";
+
+    // อัปเดตสถานะเมนู
+    pageTabs.forEach(tab => {
+        const isActive = tab.dataset.page === pageId;
+        tab.classList.toggle("active", isActive);
+        tab.setAttribute("aria-pressed", String(isActive));
+    });
 }
 
+// จัดการการคลิกปุ่มเปลี่ยนหน้า
+document.querySelectorAll("[data-page]").forEach(button => {
+    button.addEventListener("click", () => {
+        showPage(button.dataset.page);
+    });
+});
 
 function validateField(field) {
   const input = field.querySelector("input, textarea");
@@ -399,10 +427,15 @@ portfolioForm.addEventListener("input", event => {
   if (field) validateField(field);
 });
 
-pageTabs.forEach(tab => {
-  tab.addEventListener("click", () => showPage(tab.dataset.page));
-});
+document.querySelectorAll("[data-page]").forEach(button => {
 
+    button.addEventListener("click", () => {
+
+        showPage(button.dataset.page);
+
+    });
+
+});
 
 function handlePortfolioSelection(event) {
   const button = event.target.closest(".portfolio-item");
@@ -572,4 +605,12 @@ itemsContainer.addEventListener("click", event => {
   }
 });
 
-loadData().then(renderAll);
+loadData().then(() => {
+
+    renderAll();
+
+    // เข้าสู่เว็บไซต์แล้วแสดงหน้า Home ก่อน
+    showPage("homePage");
+
+});
+// loadData().then(renderAll);

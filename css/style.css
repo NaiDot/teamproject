@@ -100,8 +100,26 @@ body {
 }
 
 /* รายการ Portfolio (สร้างจาก script.js) */
-.portfolio-list li + li {
+/* .portfolio-list li + li {
   border-top: 1px solid var(--bs-border-color);
+} */
+/* กล่องแสดงรายการ Portfolio */
+.portfolio-list {
+  list-style: none;
+  margin: 0 0 22px;
+  padding: 0;
+
+  /* จำกัดความสูงของรายการ */
+  max-height: 200px;
+
+  /* เมื่อรายการเกินพื้นที่ ให้เลื่อนดูภายในกล่อง */
+  overflow-y: auto;
+
+  /* ป้องกันรายการล้นออกด้านข้าง */
+  overflow-x: hidden;
+
+  /* เพิ่มระยะห่างระหว่างรายการกับขอบกล่อง */
+  padding-right: 6px;
 }
 
 .list-empty {
@@ -240,4 +258,90 @@ body {
   background: #fff3cd;
   border-color: #e6c76a;
   color: #856404;
+}
+
+/* Hero Section */
+.home-hero {
+    min-height: 380px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-image: linear-gradient(
+        135deg,
+        var(--bs-primary-bg-subtle),
+        var(--bs-body-bg)
+    );
+}
+
+/* จำกัดความกว้างข้อความ */
+.home-description {
+    max-width: 650px;
+    line-height: 1.8;
+}
+
+/* Feature Cards */
+#homePage .card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+#homePage .card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--bs-box-shadow) !important;
+}
+
+/* ปรับขนาดบนมือถือ */
+@media (max-width: 576px) {
+    .home-hero {
+        min-height: auto;
+    }
+
+    .home-hero h1 {
+        font-size: 2rem;
+    }
+
+    .home-description {
+        font-size: 1rem !important;
+    }
+}
+
+/* =================================
+   HAMBURGER MENU CUSTOM STYLE
+================================= */
+
+/* ปรับปุ่ม Hamburger */
+#topNav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+/* ปรับความกว้างเมนูด้านข้าง */
+#pageMenu {
+    width: 300px;
+    max-width: 85vw;
+}
+
+/* ปรับปุ่มเมนู */
+#pageMenu .btn {
+    padding: 12px 16px;
+    border-radius: 10px;
+}
+
+/* ปรับบนมือถือ */
+@media (max-width: 576px) {
+    #pageMenu {
+        width: 280px;
+    }
+}
+
+/* Navbar ลอยติดด้านบนของหน้าจอ */
+.site-navbar {
+  z-index: 1030;
+  min-height: 76px;
+}
+
+/* เว้นพื้นที่ด้านบนไม่ให้ Navbar บังเนื้อหา */
+body {
+  padding-top: 76px;
 }
