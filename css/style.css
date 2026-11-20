@@ -211,3 +211,33 @@ body {
 .delete-item-btn:hover {
   background: rgba(220, 38, 38, 0.1);
 }
+
+.edit-item-btn {
+  margin-top: 16px;
+  padding: 8px 14px;
+  color: var(--bs-body-color);
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 6px;
+}
+
+.edit-item-btn:hover {
+  background: var(--bs-tertiary-bg);
+}
+
+.edit-item-btn {
+  color: black;
+  border: 1px solid gold;
+}
+
+.edit-item-btn:hover {
+  background-color: #fff3cd;
+  border-color: #e6c76a;
+  color: #856404;
+}
+
+.edit-item-btn:active {
+  background: #fff3cd;
+  border-color: #e6c76a;
+  color: #856404;
+}

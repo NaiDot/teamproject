@@ -1,5 +1,6 @@
 let portfolios = [];   // เก็บ Portfolio ทั้งหมด
 let selectedId = null; // id ของ Portfolio ที่กำลังเลือกอยู่
+let editingItemIndex = null; //ส่วนแก้ไข
 
 const exampleFiles = ["portfolio-example-1.json", "portfolio-example-2.json"];
 
@@ -66,6 +67,7 @@ function updateOtherTypeField() {
 }
 
 typeSelect.addEventListener("change", updateOtherTypeField);
+itemForm.addEventListener("reset", () => setTimeout(updateOtherTypeField));
 itemForm.addEventListener("reset", () => setTimeout(() => {
   updateOtherTypeField();
   itemForm.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
@@ -298,6 +300,10 @@ function renderItems(portfolio) {
             <ul>${evidenceHtml}</ul>
           </div>
 
+           <button type="button" class="edit-item-btn" data-index="${index}">
+          แก้ไข Item
+          </button>
+
           <button type="button" class="delete-item-btn" data-index="${index}">
             ลบ Item
           </button>
@@ -311,6 +317,60 @@ function renderItems(portfolio) {
 function renderAll() {
   renderList();
   renderDetail();
+}
+
+function editItem(index) {
+  const portfolio = getSelectedPortfolio();
+
+  if (!portfolio || !portfolio.items[index]) {
+    return;
+  }
+
+  const item = portfolio.items[index];
+
+  
+  editingItemIndex = index;
+
+
+  document.getElementById("title").value =
+    item.title || "";
+
+  document.getElementById("type").value =
+    item.type || "";
+
+  document.getElementById("otherType").value =
+    item.typeDetails || "";
+
+  document.getElementById("date").value =
+   item.date || "";
+
+  document.getElementById("role").value =
+    item.role || "";
+
+  document.getElementById("skills").value =
+    (item.skills || []).join(", ");
+
+  document.getElementById("description").value =
+    item.description || "";
+
+  document.getElementById("whatIDid").value =
+    item.whatIDid || "";
+
+  document.getElementById("whatILearned").value =
+    item.whatILearned || "";
+
+  document.getElementById("challenge").value =
+    item.challenge || "";
+
+  document.getElementById("nextStep").value =
+  item.nextStep || "";
+
+  document.getElementById("evidence").value =
+    (item.evidence || []).join("\n");
+
+  updateOtherTypeField();
+
+  showPage("createPage");
 }
 
 function showPage(pageId) {
@@ -398,32 +458,63 @@ deleteBtn.addEventListener("click", () => {
 });
 
 
+
 itemForm.addEventListener("submit", event => {
   event.preventDefault();
 
   const portfolio = getSelectedPortfolio();
+
   if (!portfolio) {
     alert("กรุณาสร้างหรือเลือก Portfolio ก่อน");
     return;
   }
 
-
-  // ช่องไหนผิด -> กรอบสีแดง + ข้อความใต้ช่อง แล้วเลื่อนไปช่องแรกที่ผิด
+  // ตรวจสอบความถูกต้องของฟอร์ม
   markInvalidFields();
-  const firstInvalid = itemForm.querySelector(".is-invalid");
-  if (firstInvalid) {
-    firstInvalid.focus();
+
+  if (!itemForm.checkValidity()) {
+    itemForm.reportValidity();
+
+    const firstInvalid = itemForm.querySelector(".is-invalid");
+
+    if (firstInvalid) {
+      firstInvalid.focus();
+    }
+
     return;
   }
 
-  const evidence = getEvidenceLinks();
+  // ตรวจสอบวันที่
+  if (dateInput.value > getTodayDate()) {
+    alert("เลือกวันที่ไม่ถูกต้อง: วันที่ทำงานต้องไม่เป็นวันในอนาคต");
+    dateInput.focus();
+    return;
+  }
 
+ // แยก Evidence ทีละบรรทัด
+  
+  // แยก Evidence ทีละบรรทัด
+  const evidence = document.getElementById("evidence").value
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => line !== "");
 
+  // ตรวจสอบ Evidence
+  const allLinksOk = evidence.length > 0 &&
+    evidence.every(url => /^https?:\/\/.+/i.test(url));
+
+  if (!allLinksOk) {
+    alert("Evidence ต้องมีอย่างน้อย 1 ลิงก์ และขึ้นต้นด้วย http:// หรือ https://");
+    return;
+  }
+
+  // อ่าน Skills
   const skills = document.getElementById("skills").value
     .split(",")
     .map(s => s.trim())
     .filter(s => s !== "");
 
+  // สร้าง Item ใหม่
   const newItem = {
     title: document.getElementById("title").value.trim(),
     type: document.getElementById("type").value,
@@ -439,7 +530,13 @@ itemForm.addEventListener("submit", event => {
     evidence: evidence
   };
 
-  portfolio.items.push(newItem);
+  // เพิ่ม Item ใหม่ หรือแก้ไข Item เดิม
+  if (editingItemIndex === null) {
+    portfolio.items.push(newItem);
+  } else {
+    portfolio.items[editingItemIndex] = newItem;
+    editingItemIndex = null;
+  }
 
   saveData();
   itemForm.reset();
@@ -447,20 +544,32 @@ itemForm.addEventListener("submit", event => {
 });
 
 
+
 itemsContainer.addEventListener("click", event => {
-  if (!event.target.classList.contains("delete-item-btn")) return;
+  const button = event.target.closest("button");
+  if (!button) return;
 
   const portfolio = getSelectedPortfolio();
-  const index = Number(event.target.dataset.index);
+  if (!portfolio) return;
+
+  const index = Number(button.dataset.index);
   const item = portfolio.items[index];
+  if (!item) return;
 
-  if (!confirm(`ลบ "${item.title}" ใช่หรือไม่?`)) return;
+  // ปุ่ม Edit
+  if (button.classList.contains("edit-item-btn")) {
+    editItem(index);
+    return;
+  }
 
-  portfolio.items.splice(index, 1);
+  // ปุ่ม Delete
+  if (button.classList.contains("delete-item-btn")) {
+    if (!confirm(`ลบ "${item.title}" ใช่หรือไม่?`)) return;
 
-  saveData();
-  renderAll();
-
+    portfolio.items.splice(index, 1);
+    saveData();
+    renderAll();
+  }
 });
 
 loadData().then(renderAll);
