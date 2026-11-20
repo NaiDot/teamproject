@@ -13,31 +13,190 @@
 </head>
 
 <body>
-    <header class="d-flex flex-wrap align-items-center justify-content-between gap-3 px-4 py-3 bg-body border-bottom">
+    <!-- <header class="d-flex flex-wrap align-items-center justify-content-between gap-3 px-4 py-3 bg-body border-bottom"> -->
+    <header class="d-flex align-items-center justify-content-between gap-3 px-4 py-3 bg-body border-bottom position-fixed top-0 start-0 w-100 site-navbar">
         <button type="button" class="theme-toggle d-flex align-items-center" id="themeToggle" role="switch" aria-checked="false" aria-label="โหมดมืด" title="เปิดโหมดมืด">
             <span class="theme-toggle-thumb" aria-hidden="true"></span>
         </button>
         <h1 class="h3 fw-bold mb-0 text-body-emphasis">PORTFOLIO</h1>
-        <nav class="d-flex gap-2" aria-label="หน้าหลัก">
-            <button type="button" class="btn btn-outline-primary fw-bold page-tab active" data-page="createPage" aria-pressed="true">สร้าง Portfolio</button>
-            <button type="button" class="btn btn-outline-primary fw-bold page-tab" data-page="portfolioPage" aria-pressed="false">PORTFOLIO</button>
-            <a href="Game/game.html" class="btn btn-primary fw-bold">🎮 เล่น Blackjack</a>
-        </nav>
+        
+        <button
+            type="button"
+            id="topNav"
+            class="btn btn-primary shadow flex-shrink-0"
+            style="z-index: 1040; width: 48px; height: 48px;"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#pageMenu"
+            aria-controls="pageMenu"
+            aria-label="เปิดเมนู">
+            <span class="fs-4">☰</span>
+        </button>
     </header>
 
+    
+    <!-- Side Navigation -->
+    <div
+        class="offcanvas offcanvas-end text-bg-body"
+        tabindex="-1"
+        id="pageMenu"
+        aria-labelledby="pageMenuLabel"
+        data-bs-theme="auto">
+
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title fw-bold" id="pageMenuLabel">
+                MENU
+            </h5>
+
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="offcanvas"
+                aria-label="ปิด">
+            </button>
+        </div>
+
+        <div class="offcanvas-body">
+            <nav class="d-grid gap-3">
+
+                <button type="button"
+                    class="btn btn-outline-primary text-start fw-bold"
+                    data-page="homePage"
+                    data-bs-dismiss="offcanvas">
+                    🏠 HOME
+                </button>
+
+                <button type="button"
+                    class="btn btn-outline-primary text-start fw-bold"
+                    data-page="createPage"
+                    data-bs-dismiss="offcanvas">
+                    ✍️ สร้าง Portfolio
+                </button>
+
+                <button type="button"
+                    class="btn btn-outline-primary text-start fw-bold"
+                    data-page="portfolioPage"
+                    data-bs-dismiss="offcanvas">
+                    📁 PORTFOLIO
+                </button>
+
+                <a href="Game/game.html"
+                    class="btn btn-primary text-start fw-bold">
+                    🎮 เล่น Blackjack
+                </a>
+
+            </nav>
+        </div>
+    </div>
+    <!-- End Side Navigation -->
+
+
     <div class="container-fluid p-3 p-md-4">
+    <!-- HOME PAGE -->
+        <main id="homePage" class="container py-4 py-md-5">
+
+            <!-- Hero Section -->
+            <section class="home-hero bg-primary-subtle text-primary-emphasis rounded-4 p-4 p-md-5 text-center shadow-sm mb-5">
+
+                <span class="badge text-bg-primary rounded-pill px-3 py-2 mb-4">
+                    PERSONAL LEARNING PORTFOLIO
+                </span>
+
+                <h1 class="display-4 fw-bold mb-3">
+                    Discover Your Journey.
+                    <br>
+                    <span class="text-primary">Showcase Your Growth.</span>
+                </h1>
+
+                <p class="fs-5 text-body-secondary mx-auto mb-4 home-description">
+                    บันทึกประสบการณ์การเรียนรู้ รวบรวมผลงาน
+                    และแสดงทักษะที่คุณได้พัฒนา
+                    ในรูปแบบ Portfolio ของคุณเอง
+                </p>
+
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <button type="button"
+                        class="btn btn-primary btn-lg px-4"
+                        data-page="createPage">
+                        Get Started
+                    </button>
+
+                    <button type="button"
+                        class="btn btn-outline-primary btn-lg px-4"
+                        data-page="portfolioPage">
+                        View Portfolio
+                    </button>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section class="py-3">
+
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold">What You Can Do</h2>
+                    <p class="text-body-secondary">
+                        ทุกประสบการณ์คือส่วนหนึ่งของการเติบโต
+                    </p>
+                </div>
+
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+
+                    <!-- Feature 1 -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm rounded-4 text-center">
+                            <div class="card-body p-4">
+                                <div class="display-4 mb-3">✍️</div>
+                                <h5 class="card-title fw-bold">Create Portfolio</h5>
+                                <p class="card-text text-body-secondary">
+                                    สร้าง Portfolio และบันทึกข้อมูลของคุณ
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm rounded-4 text-center">
+                            <div class="card-body p-4">
+                                <div class="display-4 mb-3">🚀</div>
+                                <h5 class="card-title fw-bold">Show Your Works</h5>
+                                <p class="card-text text-body-secondary">
+                                    รวบรวมผลงาน กิจกรรม และประสบการณ์
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm rounded-4 text-center">
+                            <div class="card-body p-4">
+                                <div class="display-4 mb-3">📈</div>
+                                <h5 class="card-title fw-bold">Track Your Growth</h5>
+                                <p class="card-text text-body-secondary">
+                                    ทบทวนสิ่งที่ได้เรียนรู้และพัฒนาตนเอง
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
+        <!-- END HOME PAGE -->
+
         <div class="row g-4 align-items-stretch">
 
             <!-- หน้า: สร้าง Portfolio -->
-            <aside class="col-lg-4 create-panel d-flex flex-column" id="createPage">
+            <aside class="col-lg-4 create-panel d-flex flex-column" id="createPage" hidden>
                 <div class="card bg-body-tertiary rounded-4 p-4">
-                    <h2 class="h5 fw-bold text-body-emphasis mb-3">เพิ่ม Portfolio ใหม่</h2>
-                    <p class="d-flex align-items-center gap-2 small fw-medium text-body-emphasis mb-3">
+                    <h2 class="h5 fw-bold text-body-emphasis mb-3">Create Portfolio</h2>
+                    <!-- <p class="d-flex align-items-center gap-2 small fw-medium text-body-emphasis mb-3">
                         PORTFOLIO ที่บันทึกแล้ว
                         <span class="badge bg-dark" id="countBadge">0</span>
                         รายการ
                     </p>
-                    <ul class="portfolio-list list-unstyled mb-4" id="createPortfolioList" aria-label="รายการ Portfolio ที่บันทึกแล้ว"></ul>
+                    <ul class="portfolio-list list-unstyled mb-4" id="createPortfolioList" aria-label="รายการ Portfolio ที่บันทึกแล้ว"></ul> -->
 
                     <form id="portfolioForm" novalidate>
                         <div class="field mb-3">
@@ -94,9 +253,9 @@
                 </div>
             </aside>
 
-            <div class="col-lg-8 create-content">
+            <div class="col-lg-8 create-content" hidden>
                 <section class="card bg-body-tertiary rounded-4 p-4 h-100">
-                    <h2 class="h4 mb-4">เพิ่ม Portfolio Item ใหม่</h2>
+                    <h2 class="h4 mb-4">Create Portfolio Item</h2>
 
                     <form id="item-form" novalidate>
                         <div class="row g-3">
